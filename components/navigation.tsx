@@ -1,6 +1,6 @@
 "use client"
 
-import { Eye, Calculator, BarChart3, Users, Package, User, LogOut } from "lucide-react"
+import { Eye, Calculator, Users, User, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
@@ -19,11 +19,9 @@ interface NavigationProps {
 
 export function Navigation({ userName, storeName, currentPage }: NavigationProps) {
   const navigationItems = [
-    { href: "/dashboard", label: "Dashboard", icon: BarChart3 },
     { href: "/calculator", label: "Glasses", icon: Eye },
     { href: "/contacts", label: "Contacts", icon: Calculator },
-    { href: "/admin", label: "Management", icon: Users },
-    { href: "/products", label: "Products", icon: Package },
+    { href: "/admin", label: "Admin", icon: Users },
   ]
 
   return (
