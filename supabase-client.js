@@ -1,4 +1,4 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { createClient } from '@supabase/supabase-js';
 
 // These variables will be provided by Vercel's Environment Variables.
 const supabaseUrl = "https://eeyfzopydsgusqkvhsrr.supabase.co";
