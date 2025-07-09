@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Navigation } from "@/components/navigation"
-import { supabase } from "../supabase-client.js"
+import { supabase } from "@/supabase-client.js"
 
 export default function DashboardPage() {
     const [user, setUser] = useState<any>(null);
