@@ -1,3 +1,4 @@
+// app/calculator/page.tsx
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
@@ -10,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { Navigation } from "@/components/navigation"
-import { supabase } from "../supabase-client.js"
+import { supabase } from "@/supabase-client.js"
 
 // Helper functions from your original calculator
 const formatCurrency = (amount: number) =>
