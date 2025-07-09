@@ -18,7 +18,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { supabase } from "../supabase-client.js"
+import { supabase } from "@/supabase-client.js"
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
