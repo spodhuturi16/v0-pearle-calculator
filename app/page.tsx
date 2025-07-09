@@ -1,3 +1,4 @@
+// app/page.tsx
 "use client"
 
 import type React from "react"
@@ -17,6 +18,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
+import { supabase } from "../supabase-client.js"
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -32,20 +34,58 @@ export default function LoginPage() {
     setIsLoading(true)
     setError("")
 
-    // Simulate login process
-    setTimeout(() => {
-      if (email === "admin@pearle.com") {
-        window.location.href = "/admin"
-      } else {
-        window.location.href = "/store-select"
-      }
-      setIsLoading(false)
-    }, 1500)
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (authError) {
+        setError(authError.message);
+        setIsLoading(false);
+        return;
+    }
+
+    if (authData.user) {
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', authData.user.id)
+            .single();
+
+        if (profileError) {
+            setError('Could not retrieve user profile.');
+            await supabase.auth.signOut();
+            setIsLoading(false);
+            return;
+        }
+
+        if (profile) {
+            const userRole = profile.role;
+            if (userRole === 'owner') {
+                window.location.href = './admin';
+            } else if (userRole === 'optician') {
+                window.location.href = './store-select';
+            } else {
+                setError('Unknown user role. Access denied.');
+                await supabase.auth.signOut();
+                setIsLoading(false);
+            }
+        } else {
+            setError('No profile found for this user.');
+            await supabase.auth.signOut();
+            setIsLoading(false);
+        }
+    } else {
+        setError('Authentication failed. Please try again.');
+        setIsLoading(false);
+    }
   }
 
   const handlePasswordReset = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setResetSent(true)
+    e.preventDefault();
+    const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/update-password`,
+    });
+    if (!error) {
+      setResetSent(true)
+    }
   }
 
   return (
@@ -71,7 +111,7 @@ export default function LoginPage() {
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               {error && (
-                <Alert className="border-red-200 bg-red-50">
+                <Alert variant="destructive" className="border-red-200 bg-red-50">
                   <AlertDescription className="text-red-800">{error}</AlertDescription>
                 </Alert>
               )}
