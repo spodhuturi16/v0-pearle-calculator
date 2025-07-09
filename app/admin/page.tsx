@@ -36,7 +36,26 @@ import {
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Navigation } from "@/components/navigation"
-import { supabase } from "../supabase-client.js"
+import { supabase } from "@/supabase-client.js"
+
+// ... rest of the file remains the same
+2. app/calculator/page.tsx
+TypeScript
+
+// app/calculator/page.tsx
+"use client"
+
+import { useState, useMemo, useEffect } from "react"
+import { Calculator, ShoppingCart, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Separator } from "@/components/ui/separator"
+import { Navigation } from "@/components/navigation"
+import { supabase } from "@/supabase-client.js"
 
 export default function AdminPage() {
   const [searchTerm, setSearchTerm] = useState("")
