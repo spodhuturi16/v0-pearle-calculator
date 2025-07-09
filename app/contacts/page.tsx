@@ -1,3 +1,4 @@
+// app/contacts/page.tsx
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
@@ -10,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Switch } from "@/components/ui/switch"
 import { Navigation } from "@/components/navigation"
-import { supabase } from "../supabase-client.js"
+import { supabase } from "@/supabase-client.js"
 
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount || 0);
