@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { Navigation } from "@/components/navigation"
-import { supabase } from "../supabase-client.js"
+import { supabase } from "@/supabase-client.js"
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false)
