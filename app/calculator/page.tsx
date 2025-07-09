@@ -114,6 +114,27 @@ export default function CalculatorPage() {
         setAddons(prev => prev.map(addon => addon.id === id ? { ...addon, name: value } : addon));
     };
 
+    const calculateItem = (inputs: any, isFrame = false, isCopayOnly = false) => {
+        let finalCost, yourCost, insSvgs;
+
+        if (isCopayOnly) {
+            finalCost = inputs.copay;
+            yourCost = 0; 
+            insSvgs = inputs.retail - finalCost;
+        } else { 
+            if (isFrame) {
+                 yourCost = (inputs.retail - inputs.insAllow) * (1 - (inputs.discount / 100));
+            } else {
+                 yourCost = inputs.retail * (1 - (inputs.discount / 100)) - inputs.insAllow;
+            }
+            yourCost = Math.max(0, yourCost);
+            finalCost = yourCost + inputs.copay;
+            insSvgs = inputs.retail - finalCost;
+        }
+        
+        return { yourCost, finalCost, insSvgs };
+    };
+
     const summary = useMemo(() => {
         let totalRetail = 0;
         let totalInsSvgs = 0;
@@ -230,26 +251,7 @@ export default function CalculatorPage() {
         return { totalRetail, totalInsSvgs, totalFinalCost, items: summaryItems };
     }, [selections, addons, insuranceType, globalAllowance, globalDiscount, globalDiscountInput, priceListData, examListData]);
     
-    const calculateItem = (inputs: any, isFrame = false, isCopayOnly = false) => {
-        let finalCost, yourCost, insSvgs;
 
-        if (isCopayOnly) {
-            finalCost = inputs.copay;
-            yourCost = 0; 
-            insSvgs = inputs.retail - finalCost;
-        } else { 
-            if (isFrame) {
-                 yourCost = (inputs.retail - inputs.insAllow) * (1 - (inputs.discount / 100));
-            } else {
-                 yourCost = inputs.retail * (1 - (inputs.discount / 100)) - inputs.insAllow;
-            }
-            yourCost = Math.max(0, yourCost);
-            finalCost = yourCost + inputs.copay;
-            insSvgs = inputs.retail - finalCost;
-        }
-        
-        return { yourCost, finalCost, insSvgs };
-    };
 
     const resetCalculator = () => {
         setCustomerName('');
