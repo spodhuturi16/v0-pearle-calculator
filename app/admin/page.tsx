@@ -2,6 +2,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
+
+// Force dynamic rendering to prevent build-time errors with authentication
+export const dynamic = 'force-dynamic'
 import {
   Users,
   Package,

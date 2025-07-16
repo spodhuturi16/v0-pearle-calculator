@@ -2,6 +2,9 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
+
+// Force dynamic rendering to prevent build-time errors with authentication
+export const dynamic = 'force-dynamic'
 import { Search, Filter, Plus, Edit, Trash2, Package, DollarSign } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"

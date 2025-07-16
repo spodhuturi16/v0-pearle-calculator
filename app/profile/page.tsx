@@ -1,6 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
+
+// Force dynamic rendering to prevent build-time errors with authentication
+export const dynamic = 'force-dynamic'
 import { Camera, Key, Save, Edit } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -60,9 +63,20 @@ export default function ProfilePage() {
       setProfileData(prev => ({...prev, [field]: value}));
   };
 
+  // Show loading state while user data is being fetched
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50">
-      {user && <Navigation userName={profileData.full_name} currentPage="profile" />}
+      <Navigation userName={profileData.full_name || user.email} currentPage="profile" />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
@@ -110,7 +124,7 @@ export default function ProfilePage() {
                       {profileData.full_name
                         ?.split(" ")
                         .map((n: string) => n[0])
-                        .join("")}
+                        .join("") || "U"}
                     </AvatarFallback>
                   </Avatar>
                   {isEditing && (
@@ -123,9 +137,9 @@ export default function ProfilePage() {
                   )}
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{profileData.full_name}</h3>
-                  <p className="text-gray-600">{user.email}</p>
-                  <p className="text-sm text-gray-500 mt-1 capitalize">{profileData.role}</p>
+                  <h3 className="text-lg font-semibold text-gray-900">{profileData.full_name || "User"}</h3>
+                  <p className="text-gray-600">{user?.email || ""}</p>
+                  <p className="text-sm text-gray-500 mt-1 capitalize">{profileData.role || "user"}</p>
                 </div>
               </div>
               <Separator />
