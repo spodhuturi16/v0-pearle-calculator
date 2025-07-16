@@ -71,7 +71,7 @@ export default function ContactsPage() {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) { window.location.href = '/'; return; }
 
-            const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
+            const { data: profile } = await supabase.from('profiles').select('full_name, role').eq('id', user.id).single();
             setUser({ ...user, ...profile });
 
             const contactsPromise = supabase.from('contacts').select('*');
@@ -205,7 +205,7 @@ export default function ContactsPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50">
-           {user && <Navigation userName={user.full_name || user.email} storeName={selectedStore?.name} currentPage="contacts" />}
+           {user && <Navigation userName={user.full_name || user.email} storeName={selectedStore?.name} currentPage="contacts" userRole={user.role || 'user'} />}
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                  <div className="mb-8">

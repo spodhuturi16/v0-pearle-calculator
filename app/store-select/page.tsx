@@ -14,6 +14,11 @@ export default function StoreSelectPage() {
   const [stores, setStores] = useState<any[]>([])
   const [loading, setLoading] = useState(true);
 
+  // Debug effect for logging stores
+  useEffect(() => {
+    console.log('Stores updated:', stores);
+  }, [stores]);
+
   useEffect(() => {
     const fetchUserAndAssignments = async () => {
         const { data: { user } } = await supabase.auth.getUser();
@@ -23,28 +28,59 @@ export default function StoreSelectPage() {
         }
 
         const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
+        console.log('User profile:', { profile, user_metadata: user.user_metadata });
         setUser({ ...user, ...profile });
 
-        const { data: assignments, error } = await supabase
-            .from('store_assignments')
-            .select('stores (id, name, address)')
-            .eq('optician_id', user.id);
+        // Check both possible locations for owner role
+        const isOwner = user.user_metadata?.user_role === 'owner';
+        console.log('Is owner?', isOwner, { user_metadata: user.user_metadata, profile });
         
-        if (error) {
-            console.error("Error fetching assignments", error);
-            setLoading(false);
-            return;
-        }
-
-        if (assignments && assignments.length === 1) {
-            const store = assignments[0].stores;
-            sessionStorage.setItem('selectedStore', JSON.stringify(store));
-            window.location.href = '/calculator';
-        } else if (assignments) {
-            setStores(assignments.map(a => a.stores));
-            setLoading(false);
+        if (isOwner) {
+            try {
+                // For admin users, fetch all stores with error handling
+                const { data: allStores, error: storesError } = await supabase
+                    .from('stores')
+                    .select('*')
+                    .order('name', { ascending: true });
+                    
+                if (storesError) throw storesError;
+                
+                console.log('Fetched stores for admin:', allStores);
+                if (allStores && allStores.length > 0) {
+                    setStores(allStores);
+                } else {
+                    console.log('No stores found in the database');
+                    setStores([]);
+                }
+            } catch (error) {
+                console.error("Error fetching all stores:", error);
+                // Optionally show error to user
+            } finally {
+                setLoading(false);
+            }
         } else {
-            setLoading(false);
+            // For regular users, only show assigned stores
+            const { data: assignments, error } = await supabase
+                .from('store_assignments')
+                .select('stores (id, name, address)')
+                .eq('optician_id', user.id);
+            
+            if (error) {
+                console.error("Error fetching assignments", error);
+                setLoading(false);
+                return;
+            }
+
+            if (assignments && assignments.length === 1) {
+                const store = assignments[0].stores;
+                sessionStorage.setItem('selectedStore', JSON.stringify(store));
+                window.location.href = '/calculator';
+            } else if (assignments) {
+                setStores(assignments.map(a => a.stores));
+                setLoading(false);
+            } else {
+                setLoading(false);
+            }
         }
     };
     fetchUserAndAssignments();
@@ -163,7 +199,29 @@ export default function StoreSelectPage() {
               </CardContent>
             </Card>
           )) : (
-              <p>You are not assigned to any stores. Please contact an administrator.</p>
+              <div className="col-span-3 text-center py-12">
+                <div className="text-gray-400 mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                  <h3 className="text-lg font-medium text-gray-900">No stores available</h3>
+                  <p className="mt-2 text-sm text-gray-500">
+                    {user?.user_metadata?.user_role === 'owner' 
+                      ? 'No stores found in the database. Please add stores first.'
+                      : 'You are not assigned to any stores. Please contact an administrator.'
+                    }
+                  </p>
+                </div>
+                {user?.user_metadata?.user_role === 'owner' ? (
+                  <Button onClick={() => window.location.href = '/admin/stores'} className="mt-4">
+                    Go to Admin Panel
+                  </Button>
+                ) : (
+                  <Button variant="outline" onClick={handleLogout} className="mt-4">
+                    Sign out
+                  </Button>
+                )}
+              </div>
           )}
         </div>
       </main>

@@ -1,8 +1,9 @@
 "use client"
 
-import { Eye, Calculator, Users, User, LogOut } from "lucide-react"
+import { Eye, Calculator, Users, User, LogOut, BarChart3 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { supabase } from "@/supabase-client"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,13 +16,28 @@ interface NavigationProps {
   userName: string
   storeName?: string
   currentPage?: string
+  userRole?: 'owner' | 'optician' | 'admin' | 'user'
 }
 
-export function Navigation({ userName, storeName, currentPage }: NavigationProps) {
-  const navigationItems = [
+export function Navigation({ userName, storeName, currentPage, userRole = 'user' }: NavigationProps) {
+  const baseNavigationItems = [
     { href: "/calculator", label: "Glasses", icon: Eye },
+  ]
+  
+  // Opticians and owners get contacts
+  const opticianNavigationItems = [
     { href: "/contacts", label: "Contacts", icon: Calculator },
+  ]
+  
+  // Only owners get admin access
+  const ownerNavigationItems = [
     { href: "/admin", label: "Admin", icon: Users },
+  ]
+  
+  const navigationItems = [
+    ...baseNavigationItems,
+    ...((userRole === 'optician' || userRole === 'owner' || userRole === 'admin') ? opticianNavigationItems : []),
+    ...((userRole === 'owner' || userRole === 'admin') ? ownerNavigationItems : []),
   ]
 
   return (
@@ -82,7 +98,14 @@ export function Navigation({ userName, storeName, currentPage }: NavigationProps
                   </a>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-600">
+                <DropdownMenuItem 
+                  className="text-red-600 cursor-pointer"
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    sessionStorage.removeItem('selectedStore');
+                    window.location.href = '/';
+                  }}
+                >
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign out
                 </DropdownMenuItem>

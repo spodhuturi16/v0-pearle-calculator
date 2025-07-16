@@ -63,20 +63,23 @@ export default function CalculatorPage() {
 
     useEffect(() => {
         const checkUserAndFetchData = async () => {
-            const storeData = sessionStorage.getItem('selectedStore');
-            if (!storeData) {
-                window.location.href = '/select-store';
-                return;
-            }
-            setSelectedStore(JSON.parse(storeData));
-
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
                 window.location.href = '/';
                 return;
             }
+            
+            // Skip store selection for admin users
+            const isAdmin = user.user_metadata?.user_role === 'admin';
+            const storeData = sessionStorage.getItem('selectedStore');
+            
+            if (!storeData) {
+                window.location.href = '/store-select';
+                return;
+            }
+            setSelectedStore(JSON.parse(storeData));
 
-            const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
+            const { data: profile } = await supabase.from('profiles').select('full_name, role').eq('id', user.id).single();
             setUser({ ...user, ...profile });
 
             const componentsPromise = supabase.from('components').select('*').eq('is_active', true);
@@ -106,11 +109,11 @@ export default function CalculatorPage() {
         setAddons(prev => [...prev, { id: newId, name: 'No Extras' }]);
     };
 
-    const removeAddonRow = (id: number) => {
+    const removeAddonRow = (id: string) => {
         setAddons(prev => prev.filter(addon => addon.id !== id));
     };
     
-    const handleAddonSelectChange = (id: number, value: string) => {
+    const handleAddonSelectChange = (id: string, value: string) => {
         setAddons(prev => prev.map(addon => addon.id === id ? { ...addon, name: value } : addon));
     };
 
@@ -164,7 +167,7 @@ export default function CalculatorPage() {
                 };
                 examTotalRetail += inputs.retail;
 
-                const calc = calculateItem(inputs, false, !inputs.allowance && !inputs.discount && !!inputs.copay);
+                const calc = calculateItem(inputs, false, !inputs.insAllow && !inputs.discount && !!inputs.copay);
                 totalRetail += inputs.retail;
                 totalInsSvgs += calc.insSvgs;
                 totalFinalCost += calc.finalCost;
@@ -302,9 +305,13 @@ export default function CalculatorPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50">
-            {user && <Navigation userName={user.full_name || user.email} storeName={selectedStore?.name} currentPage="calculator" />}
-
+        <div className="min-h-screen bg-gray-50">
+            <Navigation 
+                userName={user?.full_name || 'User'} 
+                storeName={selectedStore?.name || 'Pearle Vision'}
+                currentPage="calculator" 
+                userRole={user?.role || 'user'}
+            />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">Glasses Calculator</h1>

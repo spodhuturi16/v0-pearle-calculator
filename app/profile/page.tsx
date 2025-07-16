@@ -17,8 +17,6 @@ export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
   const [profileData, setProfileData] = useState({
     full_name: "",
-    email: "",
-    phone: "",
     role: "",
   });
 
@@ -35,8 +33,6 @@ export default function ProfilePage() {
             setUser({ ...user, ...profile });
             setProfileData({
                 full_name: profile.full_name || '',
-                email: user.email || '',
-                phone: profile.phone || '',
                 role: profile.role || '',
             });
         }
@@ -50,7 +46,6 @@ export default function ProfilePage() {
     
     const { error } = await supabase.from('profiles').update({
         full_name: profileData.full_name,
-        phone: profileData.phone
     }).eq('id', user.id);
 
     if (error) {
@@ -129,7 +124,7 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">{profileData.full_name}</h3>
-                  <p className="text-gray-600">{profileData.email}</p>
+                  <p className="text-gray-600">{user.email}</p>
                   <p className="text-sm text-gray-500 mt-1 capitalize">{profileData.role}</p>
                 </div>
               </div>
@@ -141,26 +136,6 @@ export default function ProfilePage() {
                     id="full-name"
                     value={profileData.full_name}
                     onChange={(e) => handleInputChange('full_name', e.target.value)}
-                    disabled={!isEditing}
-                    className="h-12 border-gray-200"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={profileData.email}
-                    disabled // Email is usually not editable
-                    className="h-12 border-gray-200"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                    id="phone"
-                    value={profileData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
                     disabled={!isEditing}
                     className="h-12 border-gray-200"
                   />
